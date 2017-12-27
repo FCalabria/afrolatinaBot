@@ -1,0 +1,43 @@
+{
+  "name": "afrolatinabot",
+  "version": "1.0.0",
+  "description": "A telegram bot for @laAfrolatina",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint **/*.js",
+    "start": "node ./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FCalabria/afrolatinaBot.git"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "node"
+  ],
+  "author": "https://github.com/FCalabria",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/FCalabria/afrolatinaBot/issues"
+  },
+  "homepage": "https://github.com/FCalabria/afrolatinaBot#readme",
+  "eslintConfig": {
+    "extends": "airbnb-base",
+    "env": {
+      "node": true
+    }
+  },
+  "eslintignore": [
+    "node_modules"
+  ],
+  "dependencies": {
+    "dotenv": "^4.0.0",
+    "node-telegram-bot-api": "^0.30.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.14.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0"
+  }
+}
