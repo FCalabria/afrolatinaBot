@@ -12,6 +12,8 @@ const client = new Twitter({
   access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
 });
 
+const forceReply = { reply_markup: { force_reply: true } };
+
 function getRandomTweet(tweets, from) {
   let filteredTweets;
   switch (from) {
@@ -42,21 +44,40 @@ function responseTweet(chatId, tweet) {
   const text = `${tweet.text}\n[${date}](https://twitter.com/LaAfrolatina/status/${tweet.id})`;
   bot.sendMessage(chatId, text, { parse_mode: 'Markdown' });
 }
-
-function getTweetFlow(chatId, fallbackMsg, from) {
-  client.get('statuses/user_timeline', { userId: '3420274348', count: 200 }, (error, params, response) => {
-    if (response) {
-      const tweet = getRandomTweet(JSON.parse(response.body), from);
-      if (tweet) {
-        responseTweet(chatId, tweet);
-      } else {
-        bot.sendMessage(chatId, fallbackMsg);
+function getBunchOfTweets(fromId) {
+  return new Promise((resolve) => {
+    client.get('statuses/user_timeline', { userId: '3420274348', count: 200, max_id: fromId }, (error, params, response) => {
+      if (error) {
+        console.log(error);
+        resolve();
       }
-    } else {
-      bot.sendMessage(chatId, fallbackMsg);
-      console.log(error);
-    }
+      resolve(JSON.parse(response.body));
+    });
   });
+}
+
+async function getAllTweets() {
+  let lastBunch = await getBunchOfTweets();
+  let allTweets = lastBunch;
+  do {
+    // eslint-disable-next-line no-await-in-loop
+    lastBunch = await getBunchOfTweets(lastBunch[lastBunch.length - 1].id);
+    allTweets = allTweets.concat(lastBunch);
+  } while (lastBunch.length === 200);
+  return allTweets;
+}
+async function getTweetFlow(chatId, fallbackMsg, from) {
+  try {
+    const allTweets = await getAllTweets();
+    const tweet = getRandomTweet(allTweets, from);
+    if (tweet) {
+      responseTweet(chatId, tweet);
+    } else {
+      throw (new Error('no tweet'));
+    }
+  } catch (error) {
+    bot.sendMessage(chatId, fallbackMsg);
+  }
 }
 
 bot.onText(/\/random/, (msg) => {
@@ -89,7 +110,7 @@ function isAfrolatina(chatId) {
   });
 }
 
-function getAuthorAndPublish(chatId, forceReply, tweet) {
+function getAuthorAndPublish(chatId, tweet) {
   bot.sendMessage(chatId, '¿Quién ha sido?', forceReply)
     .then((textResponse) => {
       bot.onReplyToMessage(textResponse.chat.id, textResponse.message_id, (hastagResponse) => {
@@ -100,7 +121,6 @@ function getAuthorAndPublish(chatId, forceReply, tweet) {
     });
 }
 bot.onText(/\/publish/, (msg) => {
-  const forceReply = { reply_markup: { force_reply: true } };
   const chatId = msg.chat.id;
   const tweet = {
     text: '',
@@ -118,7 +138,7 @@ bot.onText(/\/publish/, (msg) => {
     if (response.data === '0') {
       publishTweet(tweet, chatId);
     } else {
-      getAuthorAndPublish(chatId, forceReply, tweet);
+      getAuthorAndPublish(chatId, tweet);
     }
   });
 });
