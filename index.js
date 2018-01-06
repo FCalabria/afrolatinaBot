@@ -14,6 +14,11 @@ const client = new Twitter({
 
 const forceReply = { reply_markup: { force_reply: true } };
 
+function filterByAuthor(tweets, author) {
+  return tweets.filter(tweet => tweet.entities.hashtags
+    .map(hastag => hastag.text.toLowerCase())
+    .includes(author));
+}
 function getRandomTweet(tweets, from) {
   let filteredTweets;
   switch (from) {
@@ -24,7 +29,7 @@ function getRandomTweet(tweets, from) {
       filteredTweets = tweets;
       break;
     default:
-      filteredTweets = tweets;
+      filteredTweets = filterByAuthor(tweets, from);
       break;
   }
   if (filteredTweets.length === 0) {
@@ -89,7 +94,13 @@ bot.onText(/\/afrolatina/, (msg) => {
 });
 
 bot.onText(/\/guest/, (msg) => {
-  bot.sendMessage(msg.chat.id, 'You asked for a guest quote');
+  bot.sendMessage(msg.chat.id, 'Ok, ¿de quién?', forceReply)
+    .then((textResponse) => {
+      bot.onReplyToMessage(textResponse.chat.id, textResponse.message_id, (searchForResponse) => {
+        const author = searchForResponse.text.toLowerCase().replace('#', '');
+        getTweetFlow(msg.chat.id, 'Mmmm... no encuentro. ¿Has probado con artistaInvitado?', author);
+      });
+    });
 });
 
 function publishTweet(tweet, chatId) {
