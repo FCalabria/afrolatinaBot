@@ -1,18 +1,21 @@
 require('dotenv').config();
+console.log('RUNNING SCRIPT');
 const TelegramBot = require('node-telegram-bot-api');
 const Twitter = require('twitter');
 
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, {
   polling: true,
 });
-
+console.log('Bot initialized');
+console.log(bot);
 const client = new Twitter({
   consumer_key: process.env.TWITTER_CONSUMER_KEY,
   consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
   access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
   access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
 });
-
+console.log('Twitter initialized');
+console.log(client);
 const forceReply = { reply_markup: { force_reply: true } };
 const markdown = { parse_mode: 'Markdown' };
 
@@ -123,6 +126,7 @@ function publishTweet(tweet, chatId) {
 }
 
 function isAfrolatina(chatId) {
+  console.log('4')
   bot.sendMessage(chatId, '¿Ha sido la Afrolatina?', {
     reply_markup: {
       inline_keyboard: [[
@@ -145,6 +149,7 @@ function getAuthorAndPublish(chatId, tweet) {
 }
 
 bot.onText(/\/random/, (msg) => {
+  console.log('onText /random');
   getTweetFlow(msg.chat.id, 'Error chungo :S');
 });
 
@@ -153,6 +158,7 @@ bot.onText(/\/afrolatina/, (msg) => {
 });
 
 bot.onText(/\/guest/, (msg) => {
+  console.log('2');
   bot.sendMessage(msg.chat.id, 'Ok, ¿de quién?', forceReply)
     .then((textResponse) => {
       bot.onReplyToMessage(textResponse.chat.id, textResponse.message_id, (searchForResponse) => {
@@ -168,6 +174,7 @@ bot.onText(/\/publish/, (msg) => {
     text: '',
     hastag: '',
   };
+  console.log('1', chatId);
   bot.sendMessage(chatId, '¿Qué han dicho?', forceReply)
     .then((textResponse) => {
       bot.onReplyToMessage(textResponse.chat.id, textResponse.message_id, (sentenceMsg) => {
