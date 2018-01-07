@@ -1,10 +1,19 @@
 require('dotenv').config();
+
 const TelegramBot = require('node-telegram-bot-api');
 const Twitter = require('twitter');
 
-const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, {
-  polling: true,
-});
+console.info('starting bot');
+let bot;
+if (process.env.NODE_ENV === 'production') {
+  console.info('prod mode enabled');
+  bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { webHook: { port: process.env.PORT } });
+  bot.setWebHook(process.env.HEROKU_URL + bot.token);
+  console.info(`webhook set at ${process.env.HEROKU_URL}${bot.token}`);
+} else {
+  console.info('dev mode enabled');
+  bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true });
+}
 
 const client = new Twitter({
   consumer_key: process.env.TWITTER_CONSUMER_KEY,
@@ -55,7 +64,7 @@ function getBunchOfTweets(fromId) {
   return new Promise((resolve) => {
     client.get('statuses/user_timeline', { userId: '3420274348', count: 200, max_id: fromId }, (error, params, response) => {
       if (error) {
-        console.log(error);
+        console.error(error);
         resolve();
       }
       resolve(JSON.parse(response.body));
@@ -114,7 +123,7 @@ function publishTweet(tweet, chatId) {
     : tweet.text;
   client.post('statuses/update', { status: fullTweet }, (error, params, response) => {
     if (error) {
-      console.log(error);
+      console.error(error);
       bot.sendMessage(chatId, 'Ups, algo ha fallado');
     }
     const publishedTweet = JSON.parse(response.body);
