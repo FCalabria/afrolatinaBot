@@ -3,11 +3,14 @@ require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
 const Twitter = require('twitter');
 
+console.log('starting bot');
 let bot;
 if (process.env.NODE_ENV === 'production') {
+  console.log('prod mode enabled');
   bot = new TelegramBot(process.env.TELEGRAM_TOKEN);
   bot.setWebHook(process.env.HEROKU_URL + bot.token);
 } else {
+  console.log('dev mode enabled');
   bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true });
 }
 
@@ -128,7 +131,6 @@ function publishTweet(tweet, chatId) {
 }
 
 function isAfrolatina(chatId) {
-  console.log('4')
   bot.sendMessage(chatId, '¿Ha sido la Afrolatina?', {
     reply_markup: {
       inline_keyboard: [[
@@ -160,7 +162,6 @@ bot.onText(/\/afrolatina/, (msg) => {
 });
 
 bot.onText(/\/guest/, (msg) => {
-  console.log('2');
   bot.sendMessage(msg.chat.id, 'Ok, ¿de quién?', forceReply)
     .then((textResponse) => {
       bot.onReplyToMessage(textResponse.chat.id, textResponse.message_id, (searchForResponse) => {
@@ -176,7 +177,6 @@ bot.onText(/\/publish/, (msg) => {
     text: '',
     hastag: '',
   };
-  console.log('1', chatId);
   bot.sendMessage(chatId, '¿Qué han dicho?', forceReply)
     .then((textResponse) => {
       bot.onReplyToMessage(textResponse.chat.id, textResponse.message_id, (sentenceMsg) => {
