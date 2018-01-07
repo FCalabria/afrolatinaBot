@@ -7,8 +7,9 @@ console.log('starting bot');
 let bot;
 if (process.env.NODE_ENV === 'production') {
   console.log('prod mode enabled');
-  bot = new TelegramBot(process.env.TELEGRAM_TOKEN);
+  bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { webHook: { port: process.env.PORT } });
   bot.setWebHook(process.env.HEROKU_URL + bot.token);
+  console.log(`webhook set at ${process.env.HEROKU_URL}${bot.token}`);
 } else {
   console.log('dev mode enabled');
   bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true });
