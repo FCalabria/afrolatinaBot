@@ -32,7 +32,9 @@
     "node_modules"
   ],
   "dependencies": {
+    "body-parser": "^1.18.2",
     "dotenv": "^4.0.0",
+    "express": "^4.16.2",
     "node-telegram-bot-api": "^0.30.0",
     "twitter": "^1.7.1"
   },
