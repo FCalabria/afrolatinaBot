@@ -82,7 +82,7 @@ function responseTweet(chatId, tweet) {
 
 function randomLoadingMsg(chatId) {
   const messages = [
-    'Ok, voy',
+    'Voy',
     'Mmmmmm',
     'Veamos...',
     'Estoy en ello',
@@ -153,7 +153,7 @@ bot.onText(/\/afrolatina/, (msg) => {
 });
 
 bot.onText(/\/guest/, (msg) => {
-  bot.sendMessage(msg.chat.id, 'Ok, ¿de quién?', forceReply)
+  bot.sendMessage(msg.chat.id, '¿De quién busco?', forceReply)
     .then((textResponse) => {
       bot.onReplyToMessage(textResponse.chat.id, textResponse.message_id, (searchForResponse) => {
         const author = searchForResponse.text.toLowerCase().replace('#', '');
