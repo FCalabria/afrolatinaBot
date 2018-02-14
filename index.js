@@ -147,7 +147,9 @@ function getAuthorAndPublish(chatId, tweet) {
     .then((textResponse) => {
       bot.onReplyToMessage(textResponse.chat.id, textResponse.message_id, (hastagResponse) => {
         const editedTweet = tweet;
-        editedTweet.hastag = hastagResponse.text;
+        editedTweet.hastag = hastagResponse.text
+          .replace(/[-.+$!%^&*#]/g, '')
+          .replace(/(\s(.))|(^(.))/g, match => match.trim().toUpperCase());
         publishTweet(editedTweet, chatId);
       });
     });
